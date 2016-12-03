@@ -22,19 +22,29 @@ public class ChatClient {
 			portNumber = Integer.parseInt(args[0]);
 		}
 		try {
-			Socket socketForServerCommunication = new Socket("localhost", portNumber); //localhost -> because it connects locally
+			Socket socketForServerCommunication = new Socket("localhost",
+					portNumber); // localhost -> because it connects locally
+
+			BufferedReader inputFromServer = new BufferedReader(
+					new InputStreamReader(
+							socketForServerCommunication.getInputStream()));//init inputstream
 			
-			BufferedReader inputFromServer = new BufferedReader(new InputStreamReader(socketForServerCommunication.getInputStream()));
-			String textFromServer = null;
+			PrintStream outputToServer = new PrintStream(
+					socketForServerCommunication.getOutputStream());//init ouputstream
 			
-			PrintStream outputToServer = new PrintStream(socketForServerCommunication.getOutputStream());
 			ChatClientKeyboard keyboardInit = new ChatClientKeyboard(outputToServer);
-			new Thread(keyboardInit).start();
+									// instance for keyboard thread, we need to
+									// save the reference so later we can turn
+									// it off if chat is over
 			
-			while((textFromServer = inputFromServer.readLine()) != null){
-				System.out.println(textFromServer);
-				if(textFromServer.indexOf("Goodbye Mr.") == 0){
-					keyboardInit.keyboardActive = false; 
+			new Thread(keyboardInit).start();//init Thread
+			
+			String textFromServer = null;
+
+			while ((textFromServer = inputFromServer.readLine()) != null) {
+				System.out.println(textFromServer); //showing on console the text from group chat
+				if (textFromServer.indexOf("Goodbye Mr.") == 0) {
+					keyboardInit.setKeyboardActive(false); //turning off keyboard reading in run method
 					break;
 				}
 			}
@@ -45,7 +55,7 @@ public class ChatClient {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		}
 
 	}
 }
